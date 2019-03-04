@@ -2,20 +2,21 @@ class AzerothCitizen:
     """
     Creates a citizen of Azeroth
     """
-    #CONTANTS
+    #class contstant attributes
     ALLEGIANCE = ("The Horde", "The Alliance", "The Burning Legion", "Neutral")
     JOBS = ("Warrior", "Mage", "Hunter", "Rogue", "Warlock", "Priest", "Druid", "Shaman", "Paladin", "NPC")
     RACE = ("Orc", "Human", "Troll", "Undead", "Gnome", "Tauren", "Night Elf", "Other")
     SEX = ("Male", "Female")
 
     def __init__(self, name, race, sex, job, allegiance):
-        self.name=name
-        #race value must be in JOBS
+        self._name=name
+        #race value must be in RACE
         if race not in self.RACE:
             raise ValueError(f"race must be one of these {self.RACE}")
         else:
-            self.race=race
+            self._race=race
 
+        self.job=job
         self.sex = sex
         self.allegiance = allegiance
 
@@ -42,7 +43,7 @@ class Human(AzerothCitizen):
 
 Thrall = Orc("Thrall","Male", "Warrior")
 print(Thrall.battle_cry())
-
+print(Thrall.JOBS)
 
 Jaina = Human("Jaina", "Female", "Mage")
 print(Jaina.battle_cry())
