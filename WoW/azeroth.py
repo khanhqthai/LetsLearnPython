@@ -27,6 +27,11 @@ class AzerothCitizen:
     def __repr__(self):
         return f"{self.__class__.__name__}({self._name}, {self._race}, {self.job}, {self.sex})"
 
+    # our write_scroll use the Scroll that has been setup to lever "with" statement
+    def write_scroll(self,message):
+        scroll_name = self._name
+        with Scroll(scroll_name) as scroll:
+            scroll.write(message)
 
 
     def battle_cry(self):
@@ -95,6 +100,7 @@ class Leader(AzerothCitizen):
         return f"{self.__class__.__name__} class instance ({self._name}, {self._race}, {self.allegiance}, {self.tribe})"
 
 
+
 class BurningLegion(NamedTuple):
     """
     Creates burning legion member
@@ -108,7 +114,25 @@ class BurningLegion(NamedTuple):
     def leader(self):
         kiljaeden = BurningLegion("Kil'Jaeden")
         return kiljaeden
+    def cast(self, spell):
+        print( f"{self.name}: {spell.incantation}!" )
     
+
+@dataclass(frozen=True)
+class NewBurningLegion():
+    """Creates a burning legion member using immutable dataclass"""
+    # no need to define __repr__, dataclass automatically does it for us, pretty neat
+    # @dataclass decorator only available in Python 3.6 and up
+    name: str
+    
+    @property
+    def leader(self):
+        kiljaeden = BurningLegion("Kil'Jaeden")
+        return kiljaeden
+    def cast(self, spell):
+        print( f"{self.name}: {spell.incantation}!" )
+        
+        
 @dataclass
 class Fraction:
     name: str
@@ -156,9 +180,33 @@ class FireBall(Spell):
     def defining_feature(self):
         return f"{self.element} elemental spell"
 
+# custom context manager using built in statement "with"
+# our class scroll will write a "scroll"
+# by defining __enter__ and __exit__ in our class, we can leverage "with" statements's feature
+# "with" will handle the closing of files open by our class
+# i.e:  with Scroll("name here") as s:
+#           s.write(...)
+class Scroll:
+    def __init__(self,scroll_name):
+        self.scroll_name = scroll_name + ".scroll"
+
+    def __enter__(self):
+        self.scroll = open(self.scroll_name,"w")
+        return self.scroll
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.scroll:
+            self.scroll.close()
+
+
+# only execute the code below if __name__ is main, which  means the file(azeroth.py) being ran in the main file
+# i.e "python azeroth.py", otherwise it will not execute
+# i.e if azeroth.py is imported, the code below will not be execute, because it no longer the "main file"
 if __name__ == "__main__":
     thrall = Orc.thrall()
     print(thrall)
+    thrall.write_scroll("blood and thunder!, dabu")
+
 
     the_horde = Fraction("The Horde", ['Orcs', 'Trolls', 'Undeads', 'Taurens'], thrall)
     print(the_horde)
