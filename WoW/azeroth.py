@@ -187,6 +187,9 @@ class FireBall(Spell):
 # i.e:  with Scroll("name here") as s:
 #           s.write(...)
 class Scroll:
+    """"
+    Create a "scroll"(creates .scroll file, aka text file )
+    """
     def __init__(self,scroll_name):
         self.scroll_name = scroll_name + ".scroll"
 
@@ -198,11 +201,44 @@ class Scroll:
         if self.scroll:
             self.scroll.close()
 
+class Weapon:
+    """"
+    Create Weapon class.  This will be the base class for weapons in WoW
+    """
+    def __init__(self, name: str, damage: int):
+        self.name = name
+        self.damage = damage
+
+class Plan:
+    """"
+    Create Plan class.  In WoW, plans are used by blacksmith to create armor, or weapons.
+    Plans list the required materials
+    The goal of this class is to highlight the usage of iterators,iterables, iteration.
+    """
+    def __init__(self, name: str, materials: list):
+        self.name = name
+        self.materials = materials
+        self.counter = -1
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        self.counter += 1
+
+        if self.counter == len(self.materials):
+            raise StopIteration
+        return self.materials[self.counter]
+
 
 # only execute the code below if __name__ is main, which  means the file(azeroth.py) being ran in the main file
 # i.e "python azeroth.py", otherwise it will not execute
 # i.e if azeroth.py is imported, the code below will not be execute, because it no longer the "main file"
 if __name__ == "__main__":
+    plan = Plan("Arcanite Reaper", ["Arcanite Bar", "Enchanted Leather", "Dense Grinding Stone"])
+    for material in plan:
+        print(material)
+
     thrall = Orc.thrall()
     print(thrall)
     thrall.write_scroll("blood and thunder!, dabu")
