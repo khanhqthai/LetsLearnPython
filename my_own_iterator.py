@@ -14,7 +14,7 @@ class Counter:
 c = Counter(3,10)
 
 for i in c:
-    print(i)
+    print(i )
         
         
     

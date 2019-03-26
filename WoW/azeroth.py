@@ -3,6 +3,10 @@ from functools import wraps
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 import datetime
+from collections import Counter
+from collections import defaultdict
+import yaml
+
 class AzerothCitizen:
     """
     Creates a citizen of Azeroth
@@ -23,7 +27,9 @@ class AzerothCitizen:
 
         self.job = job
         self.sex = sex
-    #__repr__ should be unambigous, this will help developer/us to debug code
+        self._traits = {}
+        
+    #__repr__ should be unambigous, this will help us to debug code
     def __repr__(self):
         return f"{self.__class__.__name__}({self._name}, {self._race}, {self.job}, {self.sex})"
 
@@ -32,7 +38,9 @@ class AzerothCitizen:
         scroll_name = self._name
         with Scroll(scroll_name) as scroll:
             scroll.write(message)
-
+    
+    def add_trait(self, trait, value=True):
+        self._traits[trait] = True
 
     def battle_cry(self):
         return f"{self._name} yells: Charge!!"
@@ -205,15 +213,27 @@ class Weapon:
     """"
     Create Weapon class.  This will be the base class for weapons in WoW
     """
-    def __init__(self, name: str, damage: int):
+    type = ("Axe", "Sword", "Mace", "Dagger", "Other")
+    
+    def __init__(self, name: str, damage: int, type):
         self.name = name
         self.damage = damage
+        self.type = type
+        
+    def __repr__(self):
+        return f"{self.__class__.__name__} ({self.name}, {self.damage}, {self.type})"
+    
 
+    
 class Plan:
     """"
-    Create Plan class.  In WoW, plans are used by blacksmith to create armor, or weapons.
-    Plans list the required materials
+    Create Plan class.  In WoW, plans are used by a blacksmith to create armor, or weapons.
+    Plan class store the required materials for crafting an armor or weapon.
     The goal of this class is to highlight the usage of iterators,iterables, iteration.
+    We can turn in class into a class that support iteration: i.e
+        for material in plan:
+            print(material)
+    We just need to define __iter__, and __next__
     """
     def __init__(self, name: str, materials: list):
         self.name = name
@@ -230,7 +250,16 @@ class Plan:
             raise StopIteration
         return self.materials[self.counter]
 
+class Backpack:
+    """
+    Creates a Backpack class.  In WoW, a backpack is used by a character to carry items
+    """
+    def __init__(self, size, items):
+        self.size = size
+        self.items = items
 
+
+        
 # only execute the code below if __name__ is main, which  means the file(azeroth.py) being ran in the main file
 # i.e "python azeroth.py", otherwise it will not execute
 # i.e if azeroth.py is imported, the code below will not be execute, because it no longer the "main file"
@@ -238,7 +267,7 @@ if __name__ == "__main__":
     plan = Plan("Arcanite Reaper", ["Arcanite Bar", "Enchanted Leather", "Dense Grinding Stone"])
     for material in plan:
         print(material)
-
+    
     thrall = Orc.thrall()
     print(thrall)
     thrall.write_scroll("blood and thunder!, dabu")
@@ -253,7 +282,17 @@ if __name__ == "__main__":
     grunt = BurningLegion("grunt")
     print(grunt)
     
-
+    
+    # creating class objects using config files, specifically yaml
+    # this will help us organize the creation of our azeroth citizens
+    # if a our codes uses a lot parameters, config file can help with the organization
+    with open('character_config.yaml', 'r') as c:
+        config = yaml.safe_load(c)
+        thriller = Orc(**config['thriller'])
+        print(thriller)
+        
+        npc =  AzerothCitizen(**config['npc'])
+        print(npc)
     
 
     jaina = Human.jaina()
